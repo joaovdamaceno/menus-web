@@ -12,8 +12,7 @@ export default function Builder() {
   // Estado para a aba de preview ativa ("menu", "carrinho" ou "pagamento") 
   // e para a aba da sidebar esquerda ("componentes" ou "templates")
   const [activePreview, setActivePreview] = useState("menu");
-  const [activeTab, setActiveTab] = useState("componentes");
-
+    
   // Armazena o conteúdo de cada página (para salvar/restaurar o estado do editor)
   const pagesContentRef = useRef({
     menu: { components: [] as any[], css: '' },
@@ -44,35 +43,6 @@ export default function Builder() {
     // Adicione outros blocos de componentes conforme necessário
   ];
 
-  // Blocos para "Templates" com mini descrições
-  const templatesBlocks = [
-    {
-      id: 'template1',
-      label: `<div class="block-label">
-                <strong>Template Moderno</strong><br>
-                <span class="block-description">Template moderno para restaurantes</span>
-              </div>`,
-      content: `<div style="padding:20px;">
-                  <h1>Template Moderno</h1>
-                  <p>Conteúdo do template moderno</p>
-                </div>`,
-      category: 'Templates',
-    },
-    {
-      id: 'template2',
-      label: `<div class="block-label">
-                <strong>Template Clássico</strong><br>
-                <span class="block-description">Template clássico com design tradicional</span>
-              </div>`,
-      content: `<div style="padding:20px;">
-                  <h1>Template Clássico</h1>
-                  <p>Conteúdo do template clássico</p>
-                </div>`,
-      category: 'Templates',
-    },
-    // Adicione outros blocos de templates conforme necessário
-  ];
-
   // Inicializa o GrapesJS apenas uma vez
   useEffect(() => {
     if (!editorRef.current && editorContainerRef.current) {
@@ -95,7 +65,7 @@ export default function Builder() {
           sectors: [
             {
               name: 'General',
-              open: true,
+              open: false,
               buildProps: ['float', 'display', 'position', 'top', 'right', 'left', 'bottom'],
             },
             {
@@ -122,35 +92,32 @@ export default function Builder() {
         },
       });
 
-      // Cria um painel customizado para o Style Manager (sidebar direita)
-      editorRef.current.Panels.addPanel({
-        id: 'panel-sm',
-        el: '#panel-sm',
-      });
+    // Cria um painel customizado para o Style Manager (sidebar direita)
+    editorRef.current.Panels.addPanel({
+      id: 'panel-sm',
+      el: '#panel-sm',
+    });
 
-      // Salva o conteúdo inicial da página ativa ("menu")
-      pagesContentRef.current.menu = {
-        components: JSON.parse(JSON.stringify(editorRef.current.getComponents())),
-        css: editorRef.current.getCss(),
-      };
-    }
-  }, []);
+    const bm = editorRef.current.BlockManager;
 
-  // Atualiza os blocos do Block Manager conforme a aba ativa ("componentes" ou "templates")
-  useEffect(() => {
-    if (editorRef.current) {
-      const bm = editorRef.current.BlockManager;
-      // Remove todos os blocos existentes
-      bm.getAll().reset();
-      // Adiciona os blocos da aba selecionada
-      if (activeTab === 'componentes') {
-        componentsBlocks.forEach(block => bm.add(block.id, block));
-      } else if (activeTab === 'templates') {
-        templatesBlocks.forEach(block => bm.add(block.id, block));
-      }
-      bm.render();
-    }
-  }, [activeTab]);
+    // Primeiro, removemos todos os blocos (se houver)
+    bm.getAll().reset();
+    // Adiciona os blocos
+    componentsBlocks.forEach(block => bm.add(block.id, block));
+    // Renderiza os blocos (e com eles as categorias são criadas)
+    bm.render();
+
+    // Agora, após renderizar, percorre todas as categorias e as fecha
+    bm.getCategories().each(category => {
+      category.set('open', false);
+    });
+
+    pagesContentRef.current.menu = {
+      components: JSON.parse(JSON.stringify(editorRef.current.getComponents())),
+      css: editorRef.current.getCss(),
+    };
+  }
+}, []);
 
   // Função para trocar de página (preview) salvando o conteúdo atual e carregando o conteúdo salvo da nova página
   const switchPreview = (newPreview: string) => {
@@ -178,11 +145,6 @@ export default function Builder() {
   // Renderiza a área da sidebar esquerda (o container dos blocos)
   const renderLeftSidebarContent = () => (
     <div>
-      <input
-        type="text"
-        placeholder={`Pesquisar ${activeTab}...`}
-        className="border rounded p-2 w-full mb-4"
-      />
       <div id="blocks">
         {/* O Block Manager do GrapesJS renderiza os blocos aqui */}
       </div>
@@ -220,43 +182,7 @@ export default function Builder() {
       
       <div className="flex flex-1">
         {/* Sidebar Esquerda */}
-        <aside className="w-64 bg-gray-50 border-r p-4 overflow-auto">
-          <div className="mb-6">
-            <button onClick={() => window.location.href = '/projetos'} className="text-xl font-bold">
-              Logo
-            </button>
-            <div className="mt-2 space-y-1">
-              <button className="w-full text-left py-2 hover:bg-gray-100 rounded">
-                Salvar
-              </button>
-              <button className="w-full text-left py-2 hover:bg-gray-100 rounded">
-                Carregar
-              </button>
-              <button className="w-full text-left py-2 hover:bg-gray-100 rounded">
-                Renomear
-              </button>
-              <button className="w-full text-left py-2 hover:bg-gray-100 rounded">
-                Sair
-              </button>
-            </div>
-          </div>
-          <div className="mb-4">
-            <h3 className="font-bold">Projeto: Meu Projeto</h3>
-          </div>
-          <div className="flex space-x-2 mb-4">
-            <button
-              onClick={() => setActiveTab("componentes")}
-              className={`px-3 py-1 rounded ${activeTab === "componentes" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
-            >
-              Componentes
-            </button>
-            <button
-              onClick={() => setActiveTab("templates")}
-              className={`px-3 py-1 rounded ${activeTab === "templates" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
-            >
-              Templates
-            </button>
-          </div>
+        <aside className="fixed left-0 top-60 h-full bg-white/50  z-10 p-4 overflow-auto">
           {renderLeftSidebarContent()}
         </aside>
 
