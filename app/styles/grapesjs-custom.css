@@ -1,0 +1,132 @@
+/* Estilos Gerais do Editor */
+.gjs-editor, .gjs-editor * {
+  font-family: 'Poppins', sans-serif;
+}
+
+/* ---------------------- */
+/*   Block Manager        */
+/* ---------------------- */
+.gjs-block {
+  border: 1px solid #e0e0e0;
+  background-color: #fff;
+  color: #333;
+  transition: border-color 0.2s;
+  margin-bottom: 0.5rem;
+  cursor: grab;
+}
+.gjs-block:hover {
+  border-color: #bdbdbd;
+}
+
+/* Label customizado para blocos (com mini descrição) */
+.block-label {
+  text-align: center;
+  font-size: 0.875rem;
+  padding: 0.5rem;
+}
+.block-description {
+  font-size: 0.75rem;
+  color: #757575;
+}
+
+/* ---------------------- */
+/*   Style Manager        */
+/* ---------------------- */
+.gjs-sm-sector {
+  border: 1px solid #e0e0e0;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.gjs-sm-sector-title {
+  background-color: #fafafa;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: 600;
+  color: #424242;
+  border-bottom: 1px solid #e0e0e0;
+}
+.gjs-sm-sector-body {
+  padding: 1rem;
+  background-color: #fff;
+}
+.gjs-st-label {
+  font-weight: 500;
+  color: #424242;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+.gjs-st-prop input,
+.gjs-st-prop select,
+.gjs-st-prop textarea {
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+/* ---------------------- */
+/*   Painéis e Comandos   */
+/* ---------------------- */
+.gjs-pn-panel {
+  background-color: #fff;
+  border: none;
+  box-shadow: none;
+}
+.gjs-pn-commands {
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+}
+.gjs-pn-commands button {
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.gjs-pn-commands button:hover {
+  background-color: #f5f5f5;
+}
+.gjs-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 0.5rem;
+}
+.gjs-one-bg {
+  background-color: #fff;
+}
+
+/* ---------------------- */
+/*   Editor Canvas        */
+/* ---------------------- */
+.gjs-cv-canvas {
+  border: 1px solid #e0e0e0;
+  background-color: #fff;
+  height: 100%;
+}
+
+/* Destaque do elemento selecionado */
+.gjs-selected {
+  outline: 2px dashed #1976d2 !important;
+}
+
+/* ---------------------- */
+/*   Outras Customizações */
+/* ---------------------- */
+.gjs-logo {
+  display: none;
+}
+.gjs-pn-views-c {
+  background-color: #fff;
+  border-top: 1px solid #e0e0e0;
+}
+
+/* Container customizado para o Style Manager */
+#panel-sm {
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
