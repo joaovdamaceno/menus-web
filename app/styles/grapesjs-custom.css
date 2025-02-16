@@ -13,6 +13,7 @@
   transition: border-color 0.2s;
   margin-bottom: 0.5rem;
   cursor: grab;
+  width: auto;
 }
 .gjs-block:hover {
   border-color: #bdbdbd;
@@ -89,12 +90,77 @@
 .gjs-pn-commands button:hover {
   background-color: #f5f5f5;
 }
+
 .gjs-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #000000;
-  margin-bottom: 0.5rem;
+  display: none;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  color: #0e182a;
+  border-radius: 50%;  
+  width: 55px;             
+  height: 55px; 
+  padding: 0 !important;
+  background-color: white !important;
+  border-bottom: none !important;
 }
+
+.gjs-custom-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.gjs-custom-icon svg {
+  display: block;
+  margin: 0 auto;
+  transform: translateX(1px) translateY(.5px); 
+}
+
+.gjs-title:hover {
+  background: rgba(0, 0, 0, 0.05) !important;
+}
+
+.gjs-blocks-c {
+  display: block !important;
+  position: fixed;
+  top: 0;
+  left: 0;
+  padding: 10px;
+  background: #fff;
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  z-index: 999;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.gjs-block-category.gjs-open .gjs-blocks-c {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.gjs-block-category.gjs-open
+{
+  border-bottom: 0px;
+}
+
+.gjs-block-category {
+  position: relative;
+}
+
+.gjs-block-category.gjs-open .gjs-blocks-c {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .gjs-one-bg {
   background-color: #fff;
 }

@@ -3,6 +3,9 @@ import grapesjs from 'grapesjs';
 import 'grapesjs/dist/css/grapes.min.css';
 import { Link } from "@remix-run/react";
 import '~/styles/grapesjs-custom.css';
+import { IoIosAddCircle } from "react-icons/io";
+import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 export default function Builder() {
   // Referência para o editor GrapesJS e seu container
@@ -98,6 +101,30 @@ export default function Builder() {
       el: '#panel-sm',
     });
 
+    editorRef.current.on('load', () => {
+      document.querySelectorAll('.gjs-title').forEach((title) => {
+        title.innerHTML = '';
+
+        (title as HTMLElement).style.display = 'flex';
+
+        const iconContainer = document.createElement('span');
+        iconContainer.classList.add('gjs-custom-icon');
+        title.appendChild(iconContainer);
+
+        const root = createRoot(iconContainer);
+        root.render(<IoIosAddCircle size={34} />);
+
+        title.addEventListener('click', function() {
+          const dropdown = this.nextElementSibling;
+          
+          const rect = this.getBoundingClientRect();
+          
+          dropdown.style.top = `${rect.bottom + window.scrollY - 128}px`;
+          dropdown.style.left = `${rect.right + window.scrollX + 10}px`;
+        });
+      });
+    });
+  
     const bm = editorRef.current.BlockManager;
 
     // Primeiro, removemos todos os blocos (se houver)
