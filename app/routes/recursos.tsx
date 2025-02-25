@@ -1,28 +1,63 @@
-import { Outlet, Link } from "@remix-run/react";
+import { FiShoppingCart, FiCreditCard, FiMenu} from 'react-icons/fi';
+import { motion } from 'framer-motion';
 import Navbar from "~/components/Navbar";
 
 export default function Recursos() {
+  const features = [
+    {
+      title: 'Criação de Menu',
+      description: 'Crie menus interativos e personalizados para seu restaurante.',
+      icon: FiMenu,
+    },
+    {
+      title: 'Carrinho',
+      description: 'Sistema de carrinho intuitivo para seus clientes fazerem pedidos.',
+      icon: FiShoppingCart,
+    },
+    {
+      title: 'Pagamento',
+      description: 'Integração segura com diversos métodos de pagamento.',
+      icon: FiCreditCard,
+    },
+  ];
+
   return (
     <div>
-      <Navbar />
-      <div className="p-8">
-        <h1 className="text-3xl font-bold mb-6">Recursos</h1>
-        <div className="flex space-x-4">
-          <Link to="menu" className="px-4 py-2 bg-blue-500 text-white rounded">
-            Criação de Menu
-          </Link>
-          <Link to="carrinho" className="px-4 py-2 bg-blue-500 text-white rounded">
-            Carrinho
-          </Link>
-          <Link to="pagamento" className="px-4 py-2 bg-blue-500 text-white rounded">
-            Pagamento
-          </Link>
-          <Link to="templates" className="px-4 py-2 bg-blue-500 text-white rounded">
-            Templates
-          </Link>
+    <Navbar />
+    <div className="py-24 sm:py-32">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="mx-auto max-w-2xl lg:text-center">
+          <h2 className="text-base font-semibold leading-7 text-primary text-red-500">Recursos</h2>
+          <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+            Tudo que você precisa para seu restaurante online
+          </p>
+          <p className="mt-6 text-lg leading-8 text-gray-600">
+            Nossa plataforma oferece todas as ferramentas necessárias para criar uma presença online profissional para seu restaurante.
+          </p>
         </div>
-        <Outlet />
+        <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
+          <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
+            {features.map((feature) => (
+              <motion.div
+                key={feature.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="flex flex-col"
+              >
+                <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-900">
+                  <feature.icon className="h-5 w-5 flex-none text-primary text-red-500" aria-hidden="true" />
+                  {feature.title}
+                </dt>
+                <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
+                  <p className="flex-auto">{feature.description}</p>
+                </dd>
+              </motion.div>
+            ))}
+          </dl>
+        </div>
       </div>
+    </div>
     </div>
   );
 }

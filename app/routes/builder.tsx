@@ -64,7 +64,7 @@ export default function Builder() {
         },
         // Configuração do Style Manager
         styleManager: {
-          appendTo: '#panel-sm',
+          appendTo: '#top-panel-sm',
           sectors: [
             {
               name: 'General',
@@ -181,48 +181,50 @@ export default function Builder() {
   return (
     <div className="flex flex-col h-screen">
       {/* Toolbar Superior: Preview Tabs e Botão Publicar */}
-      <div className="flex justify-between items-center p-4 border-b">
-        <div className="flex space-x-2">
+      <div className="fixed w-full left-0 top-0 z-50 bg-white flex justify-between items-center p-4 border-b">
+        <div className="flex space-x-2 mx-auto">
           <button
             onClick={() => switchPreview("menu")}
-            className={`px-4 py-2 rounded ${activePreview === "menu" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+            className={`flex items-center justify-center px-5 py-2 rounded-lg ${activePreview === "menu" ? "bg-red-500 text-white" : "outline outline-1 outline-red-500 -outline-offset-2 bg-transparent text-red-500"}`}
           >
             Menu
           </button>
           <button
             onClick={() => switchPreview("carrinho")}
-            className={`px-4 py-2 rounded ${activePreview === "carrinho" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+            className={`flex items-center justify-center px-5 py-2 rounded-lg ${activePreview === "carrinho" ? "bg-red-500 text-white" : "outline outline-1 outline-red-500 -outline-offset-2 bg-transparent text-red-500"}`}
           >
             Carrinho
           </button>
           <button
             onClick={() => switchPreview("pagamento")}
-            className={`px-4 py-2 rounded ${activePreview === "pagamento" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+            className={`flex items-center justify-center px-5 py-2 rounded-lg ${activePreview === "pagamento" ? "bg-red-500 text-white" : "outline outline-1 outline-red-500 -outline-offset-2 bg-transparent text-red-500"}`}
           >
             Pagamento
           </button>
         </div>
-        <button className="bg-green-500 text-white px-4 py-2 rounded">
+        <button className="bg-red-500 text-white px-4 py-2 rounded space-x-2">
           Publicar
         </button>
       </div>
       
-      <div className="flex flex-1">
+      <div className="flex flex-1 pt-20">
         {/* Sidebar Esquerda */}
-        <aside className="fixed left-0 top-60 h-full bg-white/50  z-10 p-4 overflow-auto">
+        <aside className="fixed left-0 top-60 h-full bg-white/50 z-50 p-4 overflow-auto">
           {renderLeftSidebarContent()}
         </aside>
 
-        {/* Área Central de Edição / Preview */}
+        {/* Main Editor Area with Fixed Properties Panel */}
         <main className="flex-1 relative">
-          <div ref={editorContainerRef} className="h-full" id="gjs"></div>
+          <div ref={editorContainerRef} className="h-auto" id="gjs"></div>
+          
+          {/* New Fixed Properties Panel */}
+          <div className="fixed top-24 right-0 w-64 z-50">
+            <div className="px-4 py-3">
+              <h3 className="text-red-500 tracking-wide">Propriedades</h3>
+            </div>
+            <div id="top-panel-sm" className="h-[calc(100vh-160px)] overflow-y-auto"></div>
+          </div>
         </main>
-
-        {/* Sidebar Direita: Propriedades (Style Manager) */}
-        <aside className="w-64 bg-gray-50 border-l p-4 overflow-auto">
-          <h3 className="font-bold mb-4">Propriedades</h3>
-          <div id="panel-sm"></div>
-        </aside>
       </div>
     </div>
   );

@@ -1,8 +1,8 @@
+import { FiPlus, FiChevronDown } from "react-icons/fi";
 import { Link } from "@remix-run/react";
 import Navbar from "~/components/Navbar";
 
 export default function Projetos() {
-  // Dummy projects data
   const projects = [
     { id: 1, name: "Projeto 1", preview: "/images/preview1.png" },
     { id: 2, name: "Projeto 2", preview: "/images/preview2.png" },
@@ -11,46 +11,41 @@ export default function Projetos() {
   return (
     <div>
       <Navbar />
-      <div className="p-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Seus Projetos</h1>
-          <div className="flex items-center space-x-4">
-            <div>
-              <select className="border rounded p-2">
-                <option value="recent">Recentes</option>
-                <option value="name">Nome</option>
-              </select>
-            </div>
-            <Link to="/builder" className="bg-blue-500 text-white py-2 px-4 rounded">
-              Criar Projeto
-            </Link>
-            <div className="relative">
-              <button className="flex items-center space-x-2">
-                <img
-                  src="/images/profile.png"
-                  alt="Perfil"
-                  className="w-8 h-8 rounded-full"
-                />
-                <span>Usuário</span>
-                <i className="fas fa-chevron-down"></i>
-              </button>
-              {/* Implement dropdown logic for settings and logout */}
-            </div>
-          </div>
+      <div className="py-24 sm:py-32 px-6 max-w-7xl mx-auto">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-base font-semibold text-primary text-red-500">Seus Projetos</h2>
+          <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+            Gerencie seus projetos com facilidade
+          </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="mt-12 flex justify-between items-center">
+          <div>
+            <select className="border rounded p-2 text-gray-700">
+              <option value="recent">Recentes</option>
+              <option value="name">Nome</option>
+            </select>
+          </div>
+          <Link to="/builder" className="flex items-center bg-primary text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition">
+            <FiPlus className="mr-2" /> Criar Projeto
+          </Link>
+        </div>
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
           {projects.map((project) => (
             <Link
               key={project.id}
               to={`/builder?projectId=${project.id}`}
-              className="border rounded p-4 hover:shadow"
+              className="group rounded-lg overflow-hidden shadow-md bg-white hover:shadow-lg transition"
             >
               <img
                 src={project.preview}
                 alt={project.name}
-                className="w-full h-40 object-cover mb-4"
+                className="w-full h-40 object-cover"
               />
-              <h2 className="text-xl font-bold">{project.name}</h2>
+              <div className="p-4">
+                <h2 className="text-lg font-semibold text-gray-900 group-hover:text-primary">
+                  {project.name}
+                </h2>
+              </div>
             </Link>
           ))}
         </div>
