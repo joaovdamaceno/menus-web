@@ -1,7 +1,9 @@
 import Navbar from "~/components/Navbar";
+import Footer from "~/components/Footer";
 import { motion } from "framer-motion";
 import { Link } from "@remix-run/react";
 import { FiArrowRight } from "react-icons/fi";
+
 
 export default function Index() {
   return (
@@ -47,6 +49,7 @@ export default function Index() {
           />
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

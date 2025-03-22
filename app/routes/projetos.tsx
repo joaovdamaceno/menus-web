@@ -1,6 +1,7 @@
 import { FiPlus, FiChevronDown } from "react-icons/fi";
 import { Link } from "@remix-run/react";
 import Navbar from "~/components/Navbar";
+import Footer from "~/components/Footer";
 
 export default function Projetos() {
   const projects = [
@@ -9,8 +10,9 @@ export default function Projetos() {
   ];
 
   return (
-    <div>
+    <div className="flex flex-col min-h-screen">
       <Navbar />
+      <main className="flex-grow">
       <div className="py-24 sm:py-32 px-6 max-w-7xl mx-auto">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-base font-semibold text-primary text-red-500">Seus Projetos</h2>
@@ -50,6 +52,8 @@ export default function Projetos() {
           ))}
         </div>
       </div>
+      </main>
+      <Footer />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { FiCheck } from "react-icons/fi";
+import Footer from "~/components/Footer";
 import Navbar from "~/components/Navbar";
 
 export default function Precos() {
@@ -73,6 +74,7 @@ export default function Precos() {
           ))}
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
