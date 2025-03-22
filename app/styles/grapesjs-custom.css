@@ -72,8 +72,9 @@
 /* ---------------------- */
 .gjs-pn-panel {
   background-color: #fff;
-  border: none;
   box-shadow: none;
+  height: calc(100vh - 96px);
+  width: 95%;
 }
 .gjs-pn-commands {
   background-color: #fff;
@@ -194,13 +195,6 @@
 .gjs-pn-views-c {
   background-color: #fff;
   border-top: 1px solid #e0e0e0;
-}
-
-/* Main Panel Container */
-#top-panel-sm {
-  background: white;
-  border-left: none;
-  height: calc(100vh - 96px);
 }
 
 /* Sector Headers */
@@ -333,6 +327,8 @@
   margin: 8px 0 !important;
   padding: 8px !important;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  overflow-x: auto !important;
+  scrollbar-width: thin !important;
 }
 
 .gjs-sm-field {
@@ -407,4 +403,16 @@
 .gjs-sm-icon, .gjs-input-holder {
   color: #1e293b !important;
   transition: color 0.2s ease;
+}
+
+.fixed.z-\[1001\] {
+  z-index: 1001 !important;
+}
+
+.gjs-editor {
+  z-index: 1;
+}
+
+.fixed.bottom-8.right-8 {
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
 }
