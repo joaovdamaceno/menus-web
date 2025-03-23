@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import grapesjs from "grapesjs";
 import "grapesjs/dist/css/grapes.min.css";
+import "~/styles/grapesjs-custom.css";
 import { FiLayers, FiSave, FiDownload, FiEye, FiCheck } from "react-icons/fi";
 import { createRoot } from "react-dom/client";
 import { Link } from "@remix-run/react";
-import "~/styles/grapesjs-custom.css";
 
 interface MenuItem {
   id: string;
@@ -54,6 +54,61 @@ export default function Builder() {
       </div>
     `).join('');
   };
+
+  const componentsBlocks = [
+    {
+      id: "header",
+      category: "Headers",
+      label: `
+        <div class="block-preview">
+          <div style="padding:20px; background:#f8f8f8; border-radius:4px;">
+            <h1 style="margin:0; font-size:24px; color:#333;">Header</h1>
+          </div>
+          <div class="block-desc">Site Header</div>
+        </div>
+      `,
+      content: `<header data-gjs-type="header" style="padding:20px; background:#f8f8f8;">
+                  <h1 style="font-family: Arial, Helvetica, sans-serif; font-weight:900; font-size: 24px; color: #333;">Header</h1>
+                </header>`,
+    },
+    {
+      id: "grid",
+      category: "Content",
+      label: `
+        <div class="block-preview">
+          <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; padding:10px; background:#fff; border-radius:4px;">
+            <div style="background:#f0f0f0; padding:10px; border-radius:4px;"></div>
+            <div style="background:#f0f0f0; padding:10px; border-radius:4px;"></div>
+          </div>
+          <div class="block-desc">Menu Grid</div>
+        </div>
+      `,
+      content: `<div class="menu-grid" data-gjs-type="menu-grid">
+        <div class="menu-grid-header" data-gjs-type="menu-grid-header">
+          <h2 style="font-family: inherit; font-size: 24px; color: #333;">Menu Items</h2>
+          <div data-gjs-type="add-menu-btn" class="add-menu-btn">+</div>
+        </div>
+        <div class="menu-items-container" data-gjs-type="menu-items-container">
+          ${generateMenuItems([])}
+        </div>
+      </div>`,
+    },
+    {
+      id: "footer",
+      category: "Footers",
+      label: `
+        <div class="block-preview">
+          <footer style="padding:20px; background:#f8f8f8; border-radius:4px; text-align:center;">
+            <p style="margin:0; color:#666;">Footer</p>
+          </footer>
+          <div class="block-desc">Site Footer</div>
+        </div>
+      `,
+      content: `<footer data-gjs-type="footer" style="padding:20px; background:#f8f8f8;">
+                  <p style="font-family: inherit; font-size: 16px; color: #666;">Footer</p>
+                </footer>`,
+    },
+  ];
 
   const checkForComponents = () => {
     if (editorRef.current) {
@@ -150,7 +205,7 @@ export default function Builder() {
         if (blockId === 'grid') {
           editor.addComponents(`<div class="menu-grid" data-gjs-type="menu-grid">
             <div class="menu-grid-header" data-gjs-type="menu-grid-header">
-              <h2>Menu Items</h2>
+              <h2 style="font-family: inherit; font-size: 24px; color: #333;">Menu Items</h2>
               <div data-gjs-type="add-menu-btn" class="add-menu-btn">+</div>
             </div>
             <div class="menu-items-container" data-gjs-type="menu-items-container">
@@ -196,8 +251,6 @@ export default function Builder() {
     if (editorRef.current) {
       const editor = editorRef.current;
       if (!isPreviewMode) {
-        // Get all styles from GrapesJS
-        const styles = editor.getStyle();
         const customStyles = `
           <style>
             /* Base styles */
@@ -213,28 +266,40 @@ export default function Builder() {
               display: none !important;
             }
             
-            /* Preserve text styles */
-            h1, h2, h3, h4, h5, h6 {
-              font-family: inherit;
-              line-height: 1.2;
-              color: inherit;
-              margin-top: 0;
-            }
+            /* Component styles */
+            ${editor.getCss()}
             
-            p {
-              margin-top: 0;
-              margin-bottom: 1rem;
-            }
-            
-            /* Menu grid styles */
+            /* Additional styles to preserve component appearance */
             .menu-grid {
               padding: 20px;
+            }
+            
+            .menu-grid-header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 20px;
+              padding: 0 10px;
             }
             
             .menu-grid-header h2 {
               font-size: 24px;
               color: #333;
               margin: 0;
+            }
+            
+            .menu-items-container {
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+              gap: 20px;
+            }
+            
+            .menu-item {
+              position: relative;
+              background: white;
+              padding: 15px;
+              border-radius: 8px;
+              box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             }
             
             .menu-item h3 {
@@ -252,11 +317,16 @@ export default function Builder() {
               color: #e53e3e;
               font-weight: bold;
             }
+            
+            /* Header and Footer styles */
+            header, footer {
+              padding: 20px;
+              background: #f8f8f8;
+            }
           </style>
         `;
         
-        // Combine GrapesJS styles with custom styles
-        const content = customStyles + editor.getHtml() + `<style>${editor.getCss()}</style>`;
+        const content = customStyles + editor.getHtml();
         const previewContainer = document.createElement('div');
         previewContainer.id = 'preview-container';
         previewContainer.className = 'fixed inset-0 bg-white z-[9999] overflow-y-auto preview-mode';
@@ -282,7 +352,7 @@ export default function Builder() {
           backButton.style.opacity = '1';
           setShowBackButton(true);
           if (timeout) clearTimeout(timeout);
-          timeout = setTimeout(hideButton, 3000);
+          timeout = setTimeout(hideButton, 1000);
         };
         
         backButton.addEventListener('mouseenter', () => {
@@ -291,7 +361,7 @@ export default function Builder() {
         });
         
         backButton.addEventListener('mouseleave', () => {
-          timeout = setTimeout(hideButton, 3000);
+          timeout = setTimeout(hideButton, 1000);
         });
         
         previewContainer.addEventListener('mousemove', () => {
@@ -309,75 +379,10 @@ export default function Builder() {
         setIsPreviewMode(true);
         
         // Initial hide timeout
-        timeout = setTimeout(hideButton, 3000);
+        timeout = setTimeout(hideButton, 1000);
       }
     }
   };
-
-  const getBlocksByCategory = () => {
-    return componentsBlocks.reduce((acc, block) => {
-      if (!acc[block.category]) {
-        acc[block.category] = [];
-      }
-      acc[block.category].push(block);
-      return acc;
-    }, {} as Record<string, Block[]>);
-  };
-
-  const componentsBlocks = [
-    {
-      id: "header",
-      category: "Headers",
-      label: `
-        <div class="block-preview">
-          <div style="padding:20px; background:#f8f8f8; border-radius:4px;">
-            <h1 style="margin:0; font-size:24px; color:#333;">Header</h1>
-          </div>
-          <div class="block-desc">Site Header</div>
-        </div>
-      `,
-      content: `<header data-gjs-type="header" style="padding:20px; background:#f8f8f8;">
-                  <h1>Header</h1>
-                </header>`,
-    },
-    {
-      id: "grid",
-      category: "Content",
-      label: `
-        <div class="block-preview">
-          <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; padding:10px; background:#fff; border-radius:4px;">
-            <div style="background:#f0f0f0; padding:10px; border-radius:4px;"></div>
-            <div style="background:#f0f0f0; padding:10px; border-radius:4px;"></div>
-          </div>
-          <div class="block-desc">Menu Grid</div>
-        </div>
-      `,
-      content: `<div class="menu-grid" data-gjs-type="menu-grid">
-        <div class="menu-grid-header" data-gjs-type="menu-grid-header">
-          <h2>Menu Items</h2>
-          <div data-gjs-type="add-menu-btn" class="add-menu-btn">+</div>
-        </div>
-        <div class="menu-items-container" data-gjs-type="menu-items-container">
-          ${generateMenuItems([])}
-        </div>
-      </div>`,
-    },
-    {
-      id: "footer",
-      category: "Footers",
-      label: `
-        <div class="block-preview">
-          <footer style="padding:20px; background:#f8f8f8; border-radius:4px; text-align:center;">
-            <p style="margin:0; color:#666;">Footer</p>
-          </footer>
-          <div class="block-desc">Site Footer</div>
-        </div>
-      `,
-      content: `<footer data-gjs-type="footer" style="padding:20px; background:#f8f8f8;">
-                  <p>Footer</p>
-                </footer>`,
-    },
-  ];
 
   useEffect(() => {
     if (!editorRef.current && editorContainerRef.current) {
@@ -396,19 +401,23 @@ export default function Builder() {
           appendTo: "#panel-sm",
           sectors: [
             {
-              name: "General",
-              open: false,
-              buildProps: ["float", "display", "position", "top", "right", "left", "bottom"],
+              name: "Typography",
+              open: true,
+              buildProps: [
+                "font-family",
+                "font-size",
+                "font-weight",
+                "color",
+                "line-height",
+                "letter-spacing",
+                "text-align",
+                "text-decoration"
+              ],
             },
             {
               name: "Dimension",
               open: false,
               buildProps: ["width", "height", "max-width", "min-height", "margin", "padding"],
-            },
-            {
-              name: "Typography",
-              open: false,
-              buildProps: ["font-family", "font-size", "font-weight", "color", "line-height", "letter-spacing"],
             },
             {
               name: "Decorations",
@@ -419,6 +428,19 @@ export default function Builder() {
               name: "Extra",
               open: false,
               buildProps: ["opacity", "transform"],
+            },
+          ],
+        },
+        deviceManager: {
+          devices: [
+            {
+              name: 'Desktop',
+              width: '',
+            },
+            {
+              name: 'Mobile',
+              width: '320px',
+              widthMedia: '480px',
             },
           ],
         },
@@ -671,7 +693,7 @@ export default function Builder() {
               className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <FiDownload size={18} />
-              <span>Load</span>
+              <span>Templates</span>
             </button>
             <button
               onClick={togglePreview}
@@ -716,7 +738,13 @@ export default function Builder() {
                   </div>
                 </div>
                 <div className="flex-1 overflow-y-auto p-6">
-                  {Object.entries(getBlocksByCategory()).map(([category, blocks]) => (
+                  {Object.entries(componentsBlocks.reduce((acc, block) => {
+                    if (!acc[block.category]) {
+                      acc[block.category] = [];
+                    }
+                    acc[block.category].push(block);
+                    return acc;
+                  }, {} as Record<string, Block[]>)).map(([category, blocks]) => (
                     <div key={category} className="mb-12">
                       <h3 className="text-xl font-semibold mb-6 text-gray-800">{category}</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
