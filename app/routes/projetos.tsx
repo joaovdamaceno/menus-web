@@ -2,6 +2,7 @@ import { FiPlus, FiChevronDown } from "react-icons/fi";
 import { Link } from "@remix-run/react";
 import Navbar from "~/components/Navbar";
 import Footer from "~/components/Footer";
+import ProtectedRoute from "~/components/ProtectedRoute";
 
 export default function Projetos() {
   const projects = [
@@ -10,6 +11,7 @@ export default function Projetos() {
   ];
 
   return (
+    <ProtectedRoute>
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <main className="flex-grow">
@@ -55,5 +57,6 @@ export default function Projetos() {
       </main>
       <Footer />
     </div>
+    </ProtectedRoute>
   );
 }
