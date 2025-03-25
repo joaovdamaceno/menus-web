@@ -4,6 +4,7 @@ import Footer from "~/components/Footer";
 import axios from "axios";
 import { Link } from "@remix-run/react";
 import { useNavigate } from "@remix-run/react";
+import Swal from 'sweetalert2';
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -12,24 +13,59 @@ export default function Register() {
   const navigate = useNavigate();
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  async function save(event) {
+  async function save(event: React.FormEvent) {
     event.preventDefault();
-
+  
     if (password !== confirmPassword) {
-      alert("As senhas não conferem!");
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'As senhas não conferem!',
+        customClass: {
+          confirmButton: 'bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded'
+        },
+        buttonsStyling: false
+      });
       return;
     }
-
+  
     try {
       await axios.post("http://localhost:8080/users", {
         name: name,
         email: email,
         password: password,
       });
-      alert("Registro efetuado com sucesso!");
-      navigate('/login');
-    } catch (err) {
-      alert(err);
+      Swal.fire({
+        icon: 'success',
+        title: 'Sucesso!',
+        text: 'Registro efetuado com sucesso!',
+        customClass: {
+          confirmButton: 'bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded'
+        },
+        buttonsStyling: false
+      }).then(() => {
+        navigate('/login');
+      });
+    } catch (err: any) {
+      let errorMessage = 'Ocorreu um erro ao salvar os dados';
+      
+      if (axios.isAxiosError(err)) {
+        if (err.response?.status === 409) {
+          errorMessage = 'E-mail já cadastrado';
+        } else {
+          errorMessage = err.response?.data?.message || errorMessage;
+        }
+      }
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro',
+        text: errorMessage,
+        customClass: {
+          confirmButton: 'bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded'
+        },
+        buttonsStyling: false
+      });
     }
   }
 

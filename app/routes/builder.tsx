@@ -3,8 +3,8 @@ import grapesjs from "grapesjs";
 import "grapesjs/dist/css/grapes.min.css";
 import "~/styles/grapesjs-custom.css";
 import { FiLayers, FiSave, FiDownload, FiEye, FiCheck } from "react-icons/fi";
-import { createRoot } from "react-dom/client";
-import { Link } from "@remix-run/react";
+import { Link, useSearchParams, useNavigate } from "@remix-run/react";
+import axios from "axios";
 
 interface MenuItem {
   id: string;
@@ -25,12 +25,366 @@ interface Block {
   content: string;
 }
 
+interface Template {
+  id: string;
+  name: string;
+  preview: string;
+  description: string;
+  page: {
+    gjs: {
+      components: any[];
+      styles: any[];
+      assets?: string[];
+    };
+  };
+}
+
+const templates: Template[] = [
+  {
+    id: 'restaurant-modern',
+    name: 'Modern Restaurant',
+    preview: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
+    description: 'A modern, elegant template perfect for upscale restaurants.',
+    page: {
+      gjs: {
+        components: [
+          {
+            tagName: 'header',
+            type: 'header',
+            attributes: { 'data-gjs-type': 'header' },
+            style: { padding: '20px', background: '#f8f8f8' },
+            components: [
+              {
+                tagName: 'h1',
+                type: 'text',
+                style: {
+                  'font-family': 'Arial, Helvetica, sans-serif',
+                  'font-weight': '900',
+                  'font-size': '24px',
+                  'color': '#333',
+                  'margin': '0'
+                },
+                content: 'Modern Restaurant'
+              }
+            ]
+          },
+          {
+            tagName: 'div',
+            type: 'menu-grid',
+            attributes: { 'data-gjs-type': 'menu-grid' },
+            style: { padding: '20px' },
+            components: [
+              {
+                tagName: 'div',
+                type: 'menu-grid-header',
+                attributes: { 'data-gjs-type': 'menu-grid-header' },
+                style: {
+                  display: 'flex',
+                  'justify-content': 'space-between',
+                  'align-items': 'center',
+                  'margin-bottom': '20px',
+                  padding: '0 10px'
+                },
+                components: [
+                  {
+                    tagName: 'h2',
+                    type: 'text',
+                    style: {
+                      'font-family': 'inherit',
+                      'font-size': '24px',
+                      'color': '#333',
+                      margin: '0'
+                    },
+                    content: 'Menu Items'
+                  },
+                  {
+                    tagName: 'div',
+                    type: 'add-menu-btn',
+                    attributes: { 'data-gjs-type': 'add-menu-btn' },
+                    content: '+',
+                    style: {
+                      width: '32px',
+                      height: '32px',
+                      'border-radius': '50%',
+                      background: '#e53e3e',
+                      color: 'white',
+                      display: 'flex',
+                      'align-items': 'center',
+                      'justify-content': 'center',
+                      cursor: 'pointer',
+                      'font-size': '24px'
+                    }
+                  }
+                ]
+              },
+              {
+                tagName: 'div',
+                type: 'menu-items-container',
+                attributes: { 'data-gjs-type': 'menu-items-container' },
+                style: {
+                  display: 'grid',
+                  'grid-template-columns': 'repeat(auto-fit, minmax(250px, 1fr))',
+                  gap: '20px'
+                }
+              }
+            ]
+          },
+          {
+            tagName: 'footer',
+            type: 'footer',
+            attributes: { 'data-gjs-type': 'footer' },
+            style: { padding: '20px', background: '#f8f8f8' },
+            components: [
+              {
+                tagName: 'p',
+                type: 'text',
+                style: {
+                  'font-family': 'inherit',
+                  'font-size': '16px',
+                  'color': '#666',
+                  'text-align': 'center',
+                  margin: '0'
+                },
+                content: '© 2025 Modern Restaurant. All rights reserved.'
+              }
+            ]
+          }
+        ],
+        styles: [
+          {
+            selectors: ['.menu-grid'],
+            style: {
+              padding: '20px'
+            }
+          },
+          {
+            selectors: ['.menu-grid-header'],
+            style: {
+              display: 'flex',
+              'justify-content': 'space-between',
+              'align-items': 'center',
+              'margin-bottom': '20px',
+              padding: '0 10px'
+            }
+          },
+          {
+            selectors: ['.menu-items-container'],
+            style: {
+              display: 'grid',
+              'grid-template-columns': 'repeat(auto-fit, minmax(250px, 1fr))',
+              gap: '20px'
+            }
+          },
+          {
+            selectors: ['.menu-item'],
+            style: {
+              position: 'relative',
+              background: 'white',
+              padding: '15px',
+              'border-radius': '8px',
+              'box-shadow': '0 2px 4px rgba(0,0,0,0.1)'
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    id: 'cafe-cozy',
+    name: 'Cozy Café',
+    preview: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
+    description: 'A warm and inviting template ideal for cafés and coffee shops.',
+    page: {
+      gjs: {
+        components: [
+          {
+            tagName: 'header',
+            type: 'header',
+            attributes: { 'data-gjs-type': 'header' },
+            style: { 
+              padding: '30px 20px',
+              background: '#fff8f0',
+              'border-bottom': '1px solid #ffe4cc'
+            },
+            components: [
+              {
+                tagName: 'h1',
+                type: 'text',
+                style: {
+                  'font-family': 'Georgia, serif',
+                  'font-weight': '700',
+                  'font-size': '32px',
+                  'color': '#8b4513',
+                  'text-align': 'center',
+                  margin: '0'
+                },
+                content: 'Cozy Café'
+              }
+            ]
+          },
+          {
+            tagName: 'div',
+            type: 'menu-grid',
+            attributes: { 'data-gjs-type': 'menu-grid' },
+            style: { 
+              padding: '40px 20px',
+              background: '#fff'
+            },
+            components: [
+              {
+                tagName: 'div',
+                type: 'menu-grid-header',
+                attributes: { 'data-gjs-type': 'menu-grid-header' },
+                style: {
+                  display: 'flex',
+                  'justify-content': 'space-between',
+                  'align-items': 'center',
+                  'margin-bottom': '30px',
+                  padding: '0 10px'
+                },
+                components: [
+                  {
+                    tagName: 'h2',
+                    type: 'text',
+                    style: {
+                      'font-family': 'Georgia, serif',
+                      'font-size': '28px',
+                      'color': '#8b4513',
+                      margin: '0'
+                    },
+                    content: 'Our Menu'
+                  },
+                  {
+                    tagName: 'div',
+                    type: 'add-menu-btn',
+                    attributes: { 'data-gjs-type': 'add-menu-btn' },
+                    content: '+',
+                    style: {
+                      width: '32px',
+                      height: '32px',
+                      'border-radius': '50%',
+                      background: '#8b4513',
+                      color: 'white',
+                      display: 'flex',
+                      'align-items': 'center',
+                      'justify-content': 'center',
+                      cursor: 'pointer',
+                      'font-size': '24px'
+                    }
+                  }
+                ]
+              },
+              {
+                tagName: 'div',
+                type: 'menu-items-container',
+                attributes: { 'data-gjs-type': 'menu-items-container' },
+                style: {
+                  display: 'grid',
+                  'grid-template-columns': 'repeat(auto-fit, minmax(280px, 1fr))',
+                  gap: '30px'
+                }
+              }
+            ]
+          },
+          {
+            tagName: 'footer',
+            type: 'footer',
+            attributes: { 'data-gjs-type': 'footer' },
+            style: { 
+              padding: '30px 20px',
+              background: '#8b4513',
+              color: '#fff8f0',
+              'text-align': 'center'
+            },
+            components: [
+              {
+                tagName: 'p',
+                type: 'text',
+                style: {
+                  'font-family': 'Georgia, serif',
+                  'font-size': '16px',
+                  margin: '0'
+                },
+                content: '© 2025 Cozy Café. All rights reserved.'
+              }
+            ]
+          }
+        ],
+        styles: [
+          {
+            selectors: ['body'],
+            style: {
+              'font-family': 'Georgia, serif',
+              'background-color': '#fff8f0',
+              color: '#8b4513'
+            }
+          },
+          {
+            selectors: ['.menu-item'],
+            style: {
+              position: 'relative',
+              background: '#fff',
+              padding: '20px',
+              'border-radius': '12px',
+              'box-shadow': '0 4px 6px rgba(139, 69, 19, 0.1)',
+              'border': '1px solid #ffe4cc'
+            }
+          },
+          {
+            selectors: ['.menu-item h3'],
+            style: {
+              'font-family': 'Georgia, serif',
+              'font-size': '20px',
+              'color': '#8b4513',
+              'margin-bottom': '10px'
+            }
+          },
+          {
+            selectors: ['.menu-item .description'],
+            style: {
+              'color': '#a67c52',
+              'font-size': '14px',
+              'line-height': '1.6'
+            }
+          },
+          {
+            selectors: ['.menu-item .price'],
+            style: {
+              'color': '#8b4513',
+              'font-weight': 'bold',
+              'font-size': '18px',
+              'margin-top': '15px'
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    id: 'blank',
+    name: 'Blank Project',
+    preview: 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
+    description: 'Start from scratch with a blank canvas.',
+    page: {
+      gjs: {
+        components: [],
+        styles: []
+      }
+    }
+  }
+];
+
 export default function Builder() {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const projectId = searchParams.get("projectId");
   const editorRef = useRef(null);
   const editorContainerRef = useRef(null);
-  const backButtonTimeoutRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isComponentsModalOpen, setIsComponentsModalOpen] = useState(false);
+  const [isTemplatesModalOpen, setIsTemplatesModalOpen] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+  const [showTemplateConfirmation, setShowTemplateConfirmation] = useState(false);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [gridStyles, setGridStyles] = useState<GridStyle[]>([]);
   const [hasGrid, setHasGrid] = useState(false);
@@ -38,11 +392,52 @@ export default function Builder() {
   const [hasFooter, setHasFooter] = useState(false);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [showBackButton, setShowBackButton] = useState(true);
+  const [projectName, setProjectName] = useState("My Project");
+  const [publishSuccess, setPublishSuccess] = useState(false);
+const [publishedDomain, setPublishedDomain] = useState('');
   const [newItem, setNewItem] = useState<Partial<MenuItem>>({
     name: '',
     price: 0,
     description: '',
   });
+
+  const loadProjectData = async () => {
+    if (!projectId || !editorRef.current) return;
+
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) throw new Error("Authentication token not found");
+
+      const response = await axios.get(`http://localhost:8080/project/${projectId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const projectData = response.data;
+      setProjectName(projectData.name);
+      
+      if (projectData.page?.gjs) {
+        editorRef.current.loadProjectData(projectData.page.gjs);
+      }
+    } catch (err) {
+      console.error("Error loading project:", err);
+    }
+  };
+
+  const handleTemplateSelect = (template: Template) => {
+    setSelectedTemplate(template);
+    setShowTemplateConfirmation(true);
+  };
+
+  const handleTemplateConfirm = () => {
+    if (selectedTemplate && editorRef.current) {
+      editorRef.current.loadProjectData(selectedTemplate.page.gjs);
+      setShowTemplateConfirmation(false);
+      setIsTemplatesModalOpen(false);
+      setSelectedTemplate(null);
+    }
+  };
 
   const generateMenuItems = (items: MenuItem[]) => {
     return items.map(item => `
@@ -228,29 +623,113 @@ export default function Builder() {
     setIsComponentsModalOpen(false);
   };
 
-  const handleSave = () => {
-    if (editorRef.current) {
+  const handleSave = async () => {
+    if (!editorRef.current) return;
+
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) throw new Error("Authentication token not found");
+
       const editor = editorRef.current;
-      const data = editor.getProjectData();
-      localStorage.setItem('menuBuilderData', JSON.stringify(data));
+      const gjsData = editor.getProjectData();
+      
+      const projectData = {
+        name: projectName,
+        token: token,
+        createdAt: new Date().toISOString(),
+        page: {
+          gjs: gjsData
+        }
+      };
+
+      if (projectId) {
+        // Update existing project
+        await axios.put(`http://localhost:8080/project`, {
+          id: parseInt(projectId),
+          name: projectName,
+          page: {
+            gjs: gjsData
+          }
+        }, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+      } else {
+        // Create new project
+        const response = await axios.post('http://localhost:8080/project', projectData, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        // Navigate to the new project
+        navigate(`/builder?projectId=${response.data.id}`);
+      }
+
+      // Show success message
+      alert("Project saved successfully!");
+    } catch (err) {
+      console.error("Error saving project:", err);
+      alert("Failed to save project. Please try again.");
     }
   };
 
-  const handleLoad = () => {
-    if (editorRef.current) {
-      const editor = editorRef.current;
-      const savedData = localStorage.getItem('menuBuilderData');
-      if (savedData) {
-        editor.loadProjectData(JSON.parse(savedData));
-        checkForComponents();
+  const handlePublish = async () => {
+    if (!projectId) {
+      alert('Please save the project before publishing.');
+      return;
+    }
+  
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) throw new Error("Authentication token not found");
+      
+      // Generate a slug from project name
+      const domainName = projectName
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '');
+  
+      const response = await axios.post(
+        'http://localhost:8080/project/publish',
+        {
+          id: parseInt(projectId),
+          domainName: domainName
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      if (response.status === 200) {
+        setPublishedDomain(domainName);
+        setPublishSuccess(true);
+      }
+    } catch (error) {
+      if(error.response?.status == 409) {
+        alert('O projeto já está publicado.');
+      } else {
+      console.error('Error publishing project:', error);
+      alert('Failed to publish project. Please try again.');
       }
     }
   };
-
+  
   const togglePreview = () => {
     if (editorRef.current) {
       const editor = editorRef.current;
       if (!isPreviewMode) {
+        // Extract body styles from editor
+        const bodyStyles = editor.CssComposer.getAll().filter(rule => 
+          rule.selectorsToString().includes('body')
+        ).map(rule => rule.getStyle());
+        
+        // Merge all body styles into single object
+        const mergedBodyStyles = bodyStyles.reduce((acc, style) => ({...acc, ...style}), {});
+  
         const customStyles = `
           <style>
             /* Base styles */
@@ -258,11 +737,12 @@ export default function Builder() {
               margin: 0;
               font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
               line-height: 1.5;
+              ${Object.entries(mergedBodyStyles).map(([prop, value]) => `${prop}: ${value};`).join('\n')}
             }
             
             /* Preview-specific styles */
-            .preview-mode .add-menu-btn,
-            .preview-mode .delete-btn {
+            .preview-mode [data-gjs-type="add-menu-btn"],
+            .preview-mode [data-gjs-type="delete-btn"] {
               display: none !important;
             }
             
@@ -331,6 +811,11 @@ export default function Builder() {
         previewContainer.id = 'preview-container';
         previewContainer.className = 'fixed inset-0 bg-white z-[9999] overflow-y-auto preview-mode';
         previewContainer.innerHTML = content;
+        
+        // Apply body styles directly to preview container
+        Object.entries(mergedBodyStyles).forEach(([prop, value]) => {
+          previewContainer.style[prop] = value;
+        });
         
         const backButton = document.createElement('button');
         backButton.id = 'preview-back-button';
@@ -470,6 +955,7 @@ export default function Builder() {
             click: function(e) {
               e.stopPropagation();
               setIsModalOpen(true);
+            
             }
           },
         }
@@ -664,7 +1150,8 @@ export default function Builder() {
         bm.add(block.id, block);
       });
 
-      checkForComponents();
+      // Load project data after editor initialization
+      loadProjectData();
     }
   }, []);
 
@@ -689,13 +1176,6 @@ export default function Builder() {
               <span>Save</span>
             </button>
             <button
-              onClick={handleLoad}
-              className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <FiDownload size={18} />
-              <span>Templates</span>
-            </button>
-            <button
               onClick={togglePreview}
               className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
             >
@@ -704,11 +1184,46 @@ export default function Builder() {
             </button>
           </div>
         </div>
-        <button className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition-colors font-medium">
+        <button 
+          onClick={handlePublish}
+          className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition-colors font-medium"
+        >
           Publish
         </button>
       </div>
-      
+      {/* Success Modal */}
+      {publishSuccess && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-2xl font-bold mb-4">🚀 Published Successfully!</h2>
+            <p className="mb-4">Your website is now live at:</p>
+            <Link
+              to={`/site/${publishedDomain}`}
+              className="text-red-500 hover:underline break-words"
+              target="_blank"
+              reloadDocument
+            >
+              {window.location.origin}/site/{publishedDomain}
+            </Link>
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={() => setPublishSuccess(false)}
+                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-md mr-2"
+              >
+                Close
+              </button>
+              <Link
+                to={`/site/${publishedDomain}`}
+                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                target="_blank"
+                reloadDocument
+              >
+                Visit Site
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
       <button
         onClick={() => setIsComponentsModalOpen(true)}
         className="fixed left-6 top-1/2 -translate-y-1/2 z-50 bg-red-500 text-white p-4 rounded-full hover:bg-red-600 transition-all hover:scale-105 shadow-lg"
